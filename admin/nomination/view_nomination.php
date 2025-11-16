@@ -61,9 +61,6 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <h2 class="text-2xl font-semibold text-[#D02C4D]">Nomination Overview</h2>
                 <p class="text-sm text-gray-500">All student nominations with position details.</p>
             </div>
-                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2">
-                    🖨️ Print Nomination
-                </button>
         </header>
 
         <!-- ALERTS -->

@@ -63,9 +63,6 @@ $students = $studentObj->viewStudents();
             <div>
                 <h2 class="text-2xl font-semibold text-[#D02C4D]">Student List</h2>
                 <p class="text-sm text-gray-500">Manage all registered students here.</p>
-                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2">
-                    🖨️ Print Students
-                </button>
             </div>
             <a href="add_student.php" class="bg-[#D02C4D] hover:bg-[#A0223B] text-white px-4 py-2 rounded-lg font-medium">+ Add Student</a>
 

@@ -71,9 +71,6 @@ if ($schedule) {
             <div>
                 <h2 class="text-2xl font-semibold text-[#D02C4D]">Election Management</h2>
                 <p class="text-sm text-gray-500">Set and control the election schedule.</p>
-                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2">
-                    🖨️ Print Schedule
-                </button>
             </div>
             <a href="../admin_dashboard.php" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">⬅ Back</a>
         </header>

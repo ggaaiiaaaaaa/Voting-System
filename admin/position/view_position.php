@@ -62,9 +62,6 @@ if (isset($_SESSION['error'])) {
                 <p class="text-sm text-gray-500">Manage all election positions here.</p>
             </div>
             <a href="add_position.php" class="bg-[#D02C4D] hover:bg-[#A0223B] text-white px-4 py-2 rounded-lg font-medium">+ Add Position</a>
-                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium flex items-center gap-2">
-                    🖨️ Print Position
-                </button>
         </header>
 
         <!-- ALERT MESSAGES -->
