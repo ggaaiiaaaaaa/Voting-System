@@ -15,12 +15,18 @@ $advisorySections = $teacherObj->getAllAdvisorySections();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student['fullname'] = trim($_POST['name'] ?? '');
     $student['student_id'] = trim($_POST['student_id'] ?? '');
+    $student['email'] = trim($_POST['email'] ?? '');
     $student['password'] = trim($_POST['password'] ?? '');
     $student['grade_section'] = trim($_POST['grade_section'] ?? '');
 
     // VALIDATIONS
     if (empty($student['fullname'])) $errors['name'] = "Student Name is required.";
     if (empty($student['student_id'])) $errors['student_id'] = "Student ID is required.";
+    if (empty($student['email'])) {
+        $errors['email'] = "Email is required.";
+    } elseif (!filter_var($student['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = "Invalid email format.";
+    }
     if (empty($student['password'])) $errors['password'] = "Password is required.";
     if (empty($student['grade_section'])) $errors['grade_section'] = "Grade & Section is required.";
 
@@ -29,13 +35,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['student_id'] = "Student ID already exists.";
     }
 
+    // Check for existing Email
+    if (!$errors && $studentObj->isEmailExist($student['email'])) {
+        $errors['email'] = "Email already exists.";
+    }
+
     // SAVE STUDENT
     if (empty($errors)) {
         $studentObj->fullname = $student['fullname'];
         $studentObj->student_id = $student['student_id'];
+        $studentObj->email = $student['email'];
         $studentObj->password = $student['password'];
         $studentObj->grade_section = $student['grade_section'];
-        $studentObj->status = 'Active'; // default status
+        $studentObj->status = 'Active';
 
         if ($studentObj->addStudent()) {
             $_SESSION['success'] = "Student '{$student['fullname']}' added successfully.";
@@ -116,6 +128,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" name="student_id" value="<?= htmlspecialchars($student['student_id'] ?? '') ?>" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
                     <?php if (!empty($errors['student_id'])): ?>
                         <p class="text-red-500 text-sm mt-1"><?= $errors['student_id'] ?></p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- EMAIL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($student['email'] ?? '') ?>" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
+                    <?php if (!empty($errors['email'])): ?>
+                        <p class="text-red-500 text-sm mt-1"><?= $errors['email'] ?></p>
                     <?php endif; ?>
                 </div>
 

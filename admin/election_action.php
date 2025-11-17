@@ -16,25 +16,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     switch ($action) {
         case 'start':
-            $success = $electionObj->startElection();
-            $_SESSION['message'] = $success 
-                ? "Election started. Students can now nominate and vote." 
-                : "Failed to start the election. It may already be ongoing or ended.";
-            break;
+    $success = $electionObj->startElection();
+    if ($success) {
+        require_once __DIR__ . "/../classes/notification.php";
+        require_once __DIR__ . "/../classes/student.php";
+        
+        $notifObj = new Notification();
+        $studentObj = new Student();
+        
+        // Get election name
+        $schedule = $electionObj->fetchSchedule();
+        $election_name = $schedule['name'] ?? 'Official Election';
+        
+        // Notify all students
+        $students = $studentObj->getAllStudentEmails();
+        foreach ($students as $student) {
+            $notifObj->notifyElectionStarted(
+                $student['id'],
+                $student['email'],
+                $election_name
+            );
+        }
+        
+        $_SESSION['message'] = "Election started and all students notified!";
+    }
+    break;
 
-        case 'pause':
-            $success = $electionObj->pauseElection();
-            $_SESSION['message'] = $success 
-                ? "Election paused. Students cannot nominate or vote." 
-                : "Failed to pause the election. It may not be ongoing.";
-            break;
-
-        case 'end':
-            $success = $electionObj->endElection();
-            $_SESSION['message'] = $success 
-                ? "Election ended. Voting is now closed." 
-                : "Failed to end the election. It may already be ended.";
-            break;
+case 'end':
+    $success = $electionObj->endElection();
+    if ($success) {
+        require_once __DIR__ . "/../classes/notification.php";
+        require_once __DIR__ . "/../classes/student.php";
+        
+        $notifObj = new Notification();
+        $studentObj = new Student();
+        
+        // Get election name
+        $schedule = $electionObj->fetchSchedule();
+        $election_name = $schedule['name'] ?? 'Official Election';
+        
+        // Notify all students
+        $students = $studentObj->getAllStudentEmails();
+        foreach ($students as $student) {
+            $notifObj->notifyElectionEnded(
+                $student['id'],
+                $student['email'],
+                $election_name
+            );
+        }
+        
+        $_SESSION['message'] = "Election ended and results notification sent!";
+    }
+    break;
 
         default:
             $_SESSION['message'] = "Invalid action.";

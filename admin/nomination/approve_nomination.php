@@ -19,10 +19,33 @@ $message = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     $action = $_POST['action'];
 
-    if ($action === "approve") {
-        $nomObj->approveNomination($nom_id);
-        $message = "Nomination approved!";
-    } elseif ($action === "reject") {
+// After: $nomObj->approveNomination($nom_id);
+if ($action === "approve") {
+    $nomObj->approveNomination($nom_id);
+    
+    require_once __DIR__ . "/../../classes/notification.php";
+    require_once __DIR__ . "/../../classes/student.php";
+    
+    $notifObj = new Notification();
+    $studentObj = new Student();
+    
+    // Get student email
+    $student_email = $studentObj->getStudentEmailById($nomData['nominee_id']);
+    
+    // Get position name
+    $position_name = $nomData['position_name'];
+    
+    // Send notification
+    if ($student_email) {
+        $notifObj->notifyNominationApproved(
+            $nomData['nominee_id'],
+            $student_email,
+            $position_name
+        );
+    }
+    
+    $message = "Nomination approved and student notified!";
+} elseif ($action === "reject") {
         $nomObj->rejectNomination($nom_id);
         $message = "Nomination rejected!";
     }

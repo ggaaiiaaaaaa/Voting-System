@@ -104,35 +104,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p class="text-red-600 text-sm mb-3"><?= $errors['login'] ?></p>
         <?php endif; ?>
 
-        <form method="POST" action="login.php" class="space-y-4 text-left">
-            <div>
-                <label for="username" class="text-[#D02C4D] font-medium text-sm">Username</label>
-                <input type="text" name="username" id="username"
-                    value="<?= htmlspecialchars($username) ?>"
-                    class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
-                <?php if (!empty($errors['username'])): ?>
-                    <p class="text-red-600 text-xs mt-1"><?= $errors['username'] ?></p>
-                <?php endif; ?>
-            </div>
+<form method="POST" action="login.php" class="space-y-4 text-left">
+    <div>
+        <label for="username" class="text-[#D02C4D] font-medium text-sm">Username / Student ID / Email</label>
+        <input type="text" name="username" id="username"
+            value="<?= htmlspecialchars($username) ?>"
+            placeholder="Enter your username, student ID, or email"
+            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
+        <?php if (!empty($errors['username'])): ?>
+            <p class="text-red-600 text-xs mt-1"><?= $errors['username'] ?></p>
+        <?php endif; ?>
+    </div>
 
-            <div>
-                <label for="password" class="text-[#D02C4D] font-medium text-sm">Password</label>
-                <input type="password" name="password" id="password"
-                    class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
-                <?php if (!empty($errors['password'])): ?>
-                    <p class="text-red-600 text-xs mt-1"><?= $errors['password'] ?></p>
-                <?php endif; ?>
-            </div>
+    <div>
+        <label for="password" class="text-[#D02C4D] font-medium text-sm">Password</label>
+        <input type="password" name="password" id="password"
+            class="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
+        <?php if (!empty($errors['password'])): ?>
+            <p class="text-red-600 text-xs mt-1"><?= $errors['password'] ?></p>
+        <?php endif; ?>
+    </div>
 
-            <div class="flex justify-between items-center">
-                <a href="#" class="text-[#D02C4D] text-sm hover:underline">Forgot Password?</a>
-            </div>
+    <div class="flex justify-between items-center">
+        <a href="#" class="text-[#D02C4D] text-sm hover:underline">Forgot Password?</a>
+    </div>
 
-            <button type="submit"
-                class="w-full bg-[#D02C4D] text-white py-2 rounded-md mt-3 hover:bg-[#A0223B] transition duration-200">
-                Log In
-            </button>
-        </form>
+    <button type="submit"
+        class="w-full bg-[#D02C4D] text-white py-2 rounded-md mt-3 hover:bg-[#A0223B] transition duration-200">
+        Log In
+    </button>
+</form>
     </div>
 </body>
 </html>

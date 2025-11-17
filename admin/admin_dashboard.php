@@ -95,19 +95,21 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
             <h1 class="text-2xl font-bold text-red-700">Election Admin</h1>
             <p class="text-xs text-gray-500 mt-1">Dashboard Panel</p>
         </div>
-        <nav class="flex-1 overflow-y-auto mt-4">
-            <ul class="space-y-1">
-                <li><a href="admin_dashboard.php" class="flex items-center gap-3 px-6 py-2 bg-red-100 text-red-700 font-medium">🏠 Overview</a></li>
-                <li><a href="../admin/election/manage_schedule.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🗳️ Election Management</a></li>
-                <li><a href="../admin/student/view_student.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👥 Students</a></li>
-                <li><a href="../admin/teacher/view_teacher.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👨‍🏫 Teachers</a></li>
-                <li><a href="../admin/position/view_position.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📌 Positions</a></li>
-                <li><a href="../admin/nomination/view_nomination.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📋 Nominations</a></li>
-                <li><a href="../admin/election/view_results.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📈 Results</a></li>
-                <li><a href="../admin/election/view_reports.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📊 Reports</a></li>
-                <li><a href="../admin/election/audit_log.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">⚙️ System Controls</a></li>
-            </ul>
-        </nav>
+<nav class="flex-1 overflow-y-auto mt-4">
+    <ul class="space-y-1">
+        <li><a href="admin_dashboard.php" class="flex items-center gap-3 px-6 py-2 bg-red-100 text-red-700 font-medium">🏠 Overview</a></li>
+        <li><a href="../admin/election/manage_schedule.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🗳️ Election Management</a></li>
+        <li><a href="../admin/student/view_student.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👥 Students</a></li>
+        <li><a href="../admin/teacher/view_teacher.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👨‍🏫 Teachers</a></li>
+        <li><a href="../admin/position/view_position.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📌 Positions</a></li>
+        <li><a href="../admin/nomination/view_nomination.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📋 Nominations</a></li>
+        <li><a href="../admin/election/view_results.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📈 Results</a></li>
+        <li><a href="../admin/election/view_reports.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📊 Reports</a></li>
+        <li><a href="../admin/notifications.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🔔 Notifications</a></li>
+        <li><a href="../admin/admin_profile.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👤 Profile</a></li>
+        <li><a href="../admin/election/audit_log.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">⚙️ System Controls</a></li>
+    </ul>
+</nav>
         <div class="border-t p-4">
             <a href="../auth/logout.php" class="block text-center bg-red-500 text-white py-2 rounded hover:bg-red-600 font-semibold">Logout</a>
         </div>
@@ -116,15 +118,18 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">
         <!-- HEADER -->
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-semibold text-[#D02C4D]">Dashboard Overview</h2>
-                <p class="text-sm text-gray-500">Welcome back, Admin!</p>
-            </div>
-            <div class="<?= $badgeColor ?> text-white px-4 py-2 rounded-lg font-medium">
-                <?= htmlspecialchars($status) ?>
-            </div>
-        </header>
+<header class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-2xl font-semibold text-[#D02C4D]">Dashboard Overview</h2>
+        <p class="text-sm text-gray-500">Welcome back, Admin!</p>
+    </div>
+    <div class="flex items-center gap-4">
+        <?php include '../includes/notification_dropdown.php'; ?>
+        <div class="<?= $badgeColor ?> text-white px-4 py-2 rounded-lg font-medium">
+            <?= htmlspecialchars($status) ?>
+        </div>
+    </div>
+</header>
 
         <!-- OVERVIEW CARDS -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -361,6 +366,19 @@ new Chart(votesByPositionCtx, {
         }
     }
 });
+
+setInterval(function() {
+    fetch('../includes/get_notification_count.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.count > 0) {
+                // Update notification badge
+                document.querySelector('.notification-badge').textContent = data.count;
+                document.querySelector('.notification-badge').classList.remove('hidden');
+            }
+        });
+}, 30000);
+
 </script>
 
 </body>

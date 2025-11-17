@@ -82,43 +82,48 @@ $students = $studentObj->viewStudents();
         <!-- STUDENT TABLE -->
         <section class="bg-white shadow rounded-xl p-6 overflow-x-auto">
             <table class="w-full text-sm text-left border border-gray-200">
-                <thead class="bg-[#FEEAEA] text-[#D02C4D]">
-                    <tr>
-                        <th class="px-4 py-3">#</th>
-                        <th class="px-4 py-3">Student ID</th>
-                        <th class="px-4 py-3">Full Name</th>
-                        <th class="px-4 py-3">Grade & Section</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-gray-700">
-                    <?php if (!empty($students)): ?>
-                        <?php $i = 1; foreach ($students as $student): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3"><?= $i++ ?></td>
-                                <td class="px-4 py-3"><?= htmlspecialchars($student['student_id']) ?></td>
-                                <td class="px-4 py-3"><?= htmlspecialchars($student['fullname']) ?></td>
-                                <td class="px-4 py-3"><?= htmlspecialchars($student['grade_section']) ?></td>
-                                <td class="px-4 py-3">
-                                    <?php if ($student['status'] === 'Active'): ?>
-                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Active</span>
-                                    <?php else: ?>
-                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Inactive</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-4 py-3 flex justify-center gap-2">
-                                    <a href="edit_student.php?id=<?= $student['id'] ?>" class="bg-[#D02C4D] hover:bg-[#A0223B] text-white px-3 py-1 rounded text-xs font-medium">Edit</a>
-                                    <a href="delete_student.php?id=<?= $student['id'] ?>" onclick="return confirm('Are you sure you want to delete this student?')" class="bg-[#A0223B] hover:bg-[#D02C4D] text-white px-3 py-1 rounded text-xs font-medium">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+<!-- Update the table headers -->
+<thead class="bg-[#FEEAEA] text-[#D02C4D]">
+    <tr>
+        <th class="px-4 py-3">#</th>
+        <th class="px-4 py-3">Student ID</th>
+        <th class="px-4 py-3">Full Name</th>
+        <th class="px-4 py-3">Email</th>
+        <th class="px-4 py-3">Grade & Section</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3 text-center">Actions</th>
+    </tr>
+</thead>
+
+<!-- Update the table body -->
+<tbody class="divide-y divide-gray-100 text-gray-700">
+    <?php if (!empty($students)): ?>
+        <?php $i = 1; foreach ($students as $student): ?>
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3"><?= $i++ ?></td>
+                <td class="px-4 py-3"><?= htmlspecialchars($student['student_id']) ?></td>
+                <td class="px-4 py-3"><?= htmlspecialchars($student['fullname']) ?></td>
+                <td class="px-4 py-3"><?= htmlspecialchars($student['email'] ?? 'N/A') ?></td>
+                <td class="px-4 py-3"><?= htmlspecialchars($student['grade_section']) ?></td>
+                <td class="px-4 py-3">
+                    <?php if ($student['status'] === 'Active'): ?>
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Active</span>
                     <?php else: ?>
-                        <tr>
-                            <td colspan="6" class="text-center py-6 text-gray-500">No students found.</td>
-                        </tr>
+                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Inactive</span>
                     <?php endif; ?>
-                </tbody>
+                </td>
+                <td class="px-4 py-3 flex justify-center gap-2">
+                    <a href="edit_student.php?id=<?= $student['id'] ?>" class="bg-[#D02C4D] hover:bg-[#A0223B] text-white px-3 py-1 rounded text-xs font-medium">Edit</a>
+                    <a href="delete_student.php?id=<?= $student['id'] ?>" onclick="return confirm('Are you sure you want to delete this student?')" class="bg-[#A0223B] hover:bg-[#D02C4D] text-white px-3 py-1 rounded text-xs font-medium">Delete</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="7" class="text-center py-6 text-gray-500">No students found.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
             </table>
         </section>
     </main>

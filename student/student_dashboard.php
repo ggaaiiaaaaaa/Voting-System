@@ -108,15 +108,18 @@ if (!is_array($leading_candidates)) {
 
     <!-- Main Content -->
     <main class="flex-1 ml-64 p-8">
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-semibold text-[#D02C4D]">Dashboard Overview</h2>
-                <p class="text-sm text-gray-500">Welcome back, <?= htmlspecialchars($student_full_name) ?>!</p>
-            </div>
-            <div class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
-                Election Status: <?= htmlspecialchars($schedule_status) ?>
-            </div>
-        </header>
+<header class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-2xl font-semibold text-[#D02C4D]">Dashboard Overview</h2>
+        <p class="text-sm text-gray-500">Welcome back, <?= htmlspecialchars($student_full_name) ?>!</p>
+    </div>
+    <div class="flex items-center gap-4">
+        <?php include '../includes/notification_dropdown.php'; ?>
+        <div class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
+            Election Status: <?= htmlspecialchars($schedule_status) ?>
+        </div>
+    </div>
+</header>
 
         <!-- Quick Overview Cards -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -206,5 +209,19 @@ if (!is_array($leading_candidates)) {
 
     </main>
 </div>
+<script>
+// Poll for new notifications every 30 seconds
+setInterval(function() {
+    fetch('../includes/get_notification_count.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.count > 0) {
+                // Update notification badge
+                document.querySelector('.notification-badge').textContent = data.count;
+                document.querySelector('.notification-badge').classList.remove('hidden');
+            }
+        });
+}, 30000);
+</script>
 </body>
 </html>

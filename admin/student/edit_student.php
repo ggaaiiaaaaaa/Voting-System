@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
     $student["fullname"] = $studentData["fullname"];
     $student["student_id"] = $studentData["student_id"];
+    $student["email"] = $studentData["email"] ?? '';
     $student["grade_section"] = $studentData["grade_section"] ?? '';
     $student["status"] = $studentData["status"] ?? 'Inactive';
 }
@@ -35,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $student["fullname"] = trim($_POST["name"]);
     $student["student_id"] = trim($_POST["student_id"]);
+    $student["email"] = trim($_POST["email"]);
     $student["grade_section"] = trim($_POST["grade_section"]);
     $student["status"] = $_POST["status"] ?? 'Inactive';
 
@@ -45,11 +47,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif ($studentObj->isStudentIdExist($student["student_id"], $student_id_param)) {
         $errors["student_id"] = "This Student ID already exists.";
     }
+    if (empty($student["email"])) {
+        $errors["email"] = "Email is required.";
+    } elseif (!filter_var($student["email"], FILTER_VALIDATE_EMAIL)) {
+        $errors["email"] = "Invalid email format.";
+    } elseif ($studentObj->isEmailExist($student["email"], $student_id_param)) {
+        $errors["email"] = "This Email already exists.";
+    }
     if (empty($student["grade_section"])) $errors["grade_section"] = "Grade & Section is required.";
 
     if (empty($errors)) {
         $studentObj->fullname = $student["fullname"];
         $studentObj->student_id = $student["student_id"];
+        $studentObj->email = $student["email"];
         $studentObj->grade_section = $student["grade_section"];
         $studentObj->status = $student["status"];
 
@@ -131,6 +141,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <input type="text" name="student_id" value="<?= htmlspecialchars($student['student_id'] ?? '') ?>" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
                     <?php if (!empty($errors['student_id'])): ?>
                         <p class="text-red-500 text-sm mt-1"><?= $errors['student_id'] ?></p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- EMAIL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($student['email'] ?? '') ?>" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
+                    <?php if (!empty($errors['email'])): ?>
+                        <p class="text-red-500 text-sm mt-1"><?= $errors['email'] ?></p>
                     <?php endif; ?>
                 </div>
 

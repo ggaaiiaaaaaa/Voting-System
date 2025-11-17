@@ -82,12 +82,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['votes'])) {
     // Submit all votes
     $result = $electionObj->submitVote($student_id, $votes);
 
-    if (isset($result['success']) && $result['success']) {
-        $_SESSION['success'] = "Your votes have been successfully submitted!";
-        echo "<script>sessionStorage.setItem('justVoted', 'true');</script>";
-        header("Location: student_dashboard.php");
-        exit;
-    } else {
+// After successful vote
+if (isset($result['success']) && $result['success']) {
+    require_once __DIR__ . "/../classes/notification.php";
+    require_once __DIR__ . "/../classes/user.php";
+    require_once __DIR__ . "/../classes/student.php";
+    
+    $notifObj = new Notification();
+    $userObj = new User();
+    $studentObj = new Student();
+    
+    // Get student info
+    $studentData = $studentObj->fetchStudent($student_id);
+    $student_name = $studentData['fullname'];
+    
+    // Get admin email and ID
+    $admin_email = $userObj->getAdminEmail();
+    $admin_id = $userObj->getAdminIdByEmail($admin_email);
+    
+    // Notify admin
+    if ($admin_email && $admin_id) {
+        $notifObj->notifyAdminNewVote(
+            $admin_id,
+            $admin_email,
+            $student_name
+        );
+    }
+    
+    $_SESSION['success'] = "Your votes have been successfully submitted!";
+} else {
         $_SESSION['error'] = $result['error'] ?? "An unexpected error occurred during vote submission.";
         header("Location: voting.php");
         exit;

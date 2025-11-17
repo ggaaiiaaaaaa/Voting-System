@@ -58,9 +58,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $result = $electionObj->submitNomination($student_id, $nominee_id, $position_id);
 
-    if ($result) {
-        $_SESSION['success'] = "Nomination submitted successfully!";
-    } else {
+// After: $result = $electionObj->submitNomination(...)
+// After successful nomination
+if ($result) {
+    require_once __DIR__ . "/../classes/notification.php";
+    require_once __DIR__ . "/../classes/user.php";
+    
+    $notifObj = new Notification();
+    $userObj = new User();
+    $studentObj = new Student();
+    
+    // Get student info
+    $studentData = $studentObj->fetchStudent($student_id);
+    $student_name = $studentData['fullname'];
+    
+    // Get position name
+    $positionData = $posObj->fetchPosition($position_id);
+    $position_name = $positionData['position_name'];
+    
+    // Get admin email and ID
+    $admin_email = $userObj->getAdminEmail();
+    $admin_id = $userObj->getAdminIdByEmail($admin_email);
+    
+    // Notify admin (both system and email)
+    if ($admin_email && $admin_id) {
+        $notifObj->notifyAdminNewNomination(
+            $admin_id,
+            $admin_email,
+            $student_name,
+            $position_name
+        );
+    }
+    
+    $_SESSION['success'] = "Nomination submitted successfully!";
+} else {
         // This 'else' catches failures from the Election class (e.g., database error)
         $_SESSION['error'] = "Nomination failed. An internal error occurred.";
     }
