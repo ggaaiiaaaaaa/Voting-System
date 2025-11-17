@@ -3,7 +3,7 @@
 require_once __DIR__ . "/../config/database.php";
 
 class Election {
-    private $conn;
+    public $conn;
 
     public function __construct() {
         $db = new Database();

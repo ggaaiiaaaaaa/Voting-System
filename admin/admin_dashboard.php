@@ -89,31 +89,7 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
 <body class="bg-gray-100 font-sans">
 <div class="flex min-h-screen">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-white shadow-lg fixed h-screen flex flex-col">
-        <div class="p-6 border-b">
-            <h1 class="text-2xl font-bold text-red-700">Election Admin</h1>
-            <p class="text-xs text-gray-500 mt-1">Dashboard Panel</p>
-        </div>
-<nav class="flex-1 overflow-y-auto mt-4">
-    <ul class="space-y-1">
-        <li><a href="admin_dashboard.php" class="flex items-center gap-3 px-6 py-2 bg-red-100 text-red-700 font-medium">🏠 Overview</a></li>
-        <li><a href="../admin/election/manage_schedule.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🗳️ Election Management</a></li>
-        <li><a href="../admin/student/view_student.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👥 Students</a></li>
-        <li><a href="../admin/teacher/view_teacher.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👨‍🏫 Teachers</a></li>
-        <li><a href="../admin/position/view_position.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📌 Positions</a></li>
-        <li><a href="../admin/nomination/view_nomination.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📋 Nominations</a></li>
-        <li><a href="../admin/election/view_results.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📈 Results</a></li>
-        <li><a href="../admin/election/view_reports.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📊 Reports</a></li>
-        <li><a href="../admin/notifications.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🔔 Notifications</a></li>
-        <li><a href="../admin/admin_profile.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">👤 Profile</a></li>
-        <li><a href="../admin/election/audit_log.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">⚙️ System Controls</a></li>
-    </ul>
-</nav>
-        <div class="border-t p-4">
-            <a href="../auth/logout.php" class="block text-center bg-red-500 text-white py-2 rounded hover:bg-red-600 font-semibold">Logout</a>
-        </div>
-    </aside>
+    <?php include '../includes/admin_sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">

@@ -58,30 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="bg-[#f8f9fa] font-sans">
 <div class="flex min-h-screen">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-white shadow-lg fixed h-screen flex flex-col">
-        <div class="p-6 border-b">
-            <h1 class="text-2xl font-bold text-[#D02C4D]">Election Admin</h1>
-            <p class="text-xs text-gray-500 mt-1">Dashboard Panel</p>
-        </div>
-
-        <nav class="flex-1 overflow-y-auto mt-4">
-            <ul class="space-y-1">
-                <li><a href="../admin_dashboard.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>🏠</span> Overview</a></li>
-                <li><a href="manage_schedule.php" class="flex items-center gap-3 px-6 py-2 bg-[#FEEAEA] text-[#D02C4D] font-medium"><span>🗳️</span> Election Management</a></li>
-                <li><a href="../student/view_student.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>👥</span> Students</a></li>
-                <li><a href="../teacher/view_teacher.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>👨‍🏫</span> Teachers</a></li>
-                <li><a href="../position/view_position.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>📌</span> Positions</a></li>
-                <li><a href="../nomination/view_nomination.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>📋</span> Nominations</a></li>
-                <li><a href="view_results.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>📈</span> Results</a></li>
-                <li><a href="audit_log.php" class="flex items-center gap-3 px-6 py-2 hover:bg-[#FEEAEA] text-gray-700"><span>⚙️</span> System Controls</a></li>
-            </ul>
-        </nav>
-
-        <div class="border-t p-4">
-            <a href="../auth/logout.php" class="block text-center bg-[#D02C4D] text-white py-2 rounded hover:bg-[#A0223B] font-semibold">Logout</a>
-        </div>
-    </aside>
+<?php include '../../includes/admin_sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">

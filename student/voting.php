@@ -129,24 +129,7 @@ if (isset($result['success']) && $result['success']) {
 <body class="bg-gray-100 font-sans">
 <div class="flex min-h-screen">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg fixed h-screen flex flex-col">
-        <div class="p-6 border-b">
-            <h1 class="text-2xl font-bold text-red-700">Student Panel</h1>
-            <p class="text-xs text-gray-500 mt-1">Voting Panel</p>
-        </div>
-        <nav class="flex-1 overflow-y-auto mt-4">
-            <ul class="space-y-1">
-                <li><a href="student_dashboard.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">🏠 Overview</a></li>
-                <li><a href="nominate.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📋 My Nominations</a></li>
-                <li><a href="voting.php" class="flex items-center gap-3 px-6 py-2 bg-red-100 text-red-700 font-medium">🗳️ Vote</a></li>
-                <li><a href="view_results.php" class="flex items-center gap-3 px-6 py-2 hover:bg-red-100 text-gray-700">📈 Results</a></li>
-            </ul>
-        </nav>
-        <div class="border-t p-4">
-            <a href="../auth/logout.php" class="block text-center bg-red-500 text-white py-2 rounded hover:bg-red-600 font-semibold">Logout</a>
-        </div>
-    </aside>
+    <?php include '../includes/student_sidebar.php'; ?>
 
     <!-- Main Content -->
     <main class="flex-1 ml-64 p-8">
