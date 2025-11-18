@@ -212,7 +212,7 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
                 <!-- Voter Turnout Chart -->
                 <div>
                     <h4 class="text-sm font-medium text-gray-600 mb-3">Voter Turnout</h4>
-                    <canvas id="voterTurnoutChart" height="200"></canvas>
+                    <canvas id="voterTurnoutChart" height="50"></canvas>
                 </div>
 
                 <!-- Votes by Position Chart -->
@@ -223,51 +223,6 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
             </div>
         </section>
 
-<!--         <section class="bg-white shadow rounded-xl p-6 mb-10">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Reports</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <a href="../admin/reports/voter_report.php" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-4 rounded-lg shadow-md transition">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">👥</span>
-                        <div>
-                            <p class="font-semibold">Voter Report</p>
-                            <p class="text-xs opacity-90">View voter turnout details</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="../admin/reports/candidate_report.php" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-4 rounded-lg shadow-md transition">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">🎯</span>
-                        <div>
-                            <p class="font-semibold">Candidate Report</p>
-                            <p class="text-xs opacity-90">Detailed candidate analysis</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="../admin/reports/position_report.php" class="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-4 rounded-lg shadow-md transition">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">📌</span>
-                        <div>
-                            <p class="font-semibold">Position Report</p>
-                            <p class="text-xs opacity-90">Position-wise statistics</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="../admin/reports/summary_report.php" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-lg shadow-md transition">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">📄</span>
-                        <div>
-                            <p class="font-semibold">Summary Report</p>
-                            <p class="text-xs opacity-90">Complete election summary</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </section>
- -->
         <!-- SYSTEM CONTROLS -->
         <section class="bg-white shadow rounded-xl p-6">
             <h3 class="text-lg font-semibold text-gray-700 mb-4">⚙️ System Controls</h3>

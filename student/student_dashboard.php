@@ -18,10 +18,7 @@ $studentObj = new Student();
 
 // --- Fetch Student Data ---
 $studentData = $studentObj->getStudentById($student_id);
-$first = $studentData['first_name'] ?? '';
-$last = $studentData['last_name'] ?? '';
-$student_full_name = trim("$first $last") ?: 'Student';
-
+$fullname = $studentData['fullname'] ?? '';
 // --- Current Election Status (admin-controlled) ---
 $schedule_status = $electionObj->getAdminControlledStatus(); 
 
@@ -84,7 +81,7 @@ if (!is_array($leading_candidates)) {
 <header class="flex justify-between items-center mb-8">
     <div>
         <h2 class="text-2xl font-semibold text-[#D02C4D]">Dashboard Overview</h2>
-        <p class="text-sm text-gray-500">Welcome back, <?= htmlspecialchars($student_full_name) ?>!</p>
+        <p class="text-sm text-gray-500">Welcome back, <?= htmlspecialchars($fullname) ?>!</p>
     </div>
     <div class="flex items-center gap-4">
         <?php include '../includes/notification_dropdown.php'; ?>
