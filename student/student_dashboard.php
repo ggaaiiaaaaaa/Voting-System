@@ -6,7 +6,7 @@ require_once __DIR__ . "/../classes/student.php";
 
 // ✅ Redirect if not logged in or not a student
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
-    header("Location: ../auth/login.php");
+    header("Location: ../../index.php");
     exit;
 }
 

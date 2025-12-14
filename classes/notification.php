@@ -14,6 +14,9 @@ class Notification {
     private $conn;
 
     public function __construct() {
+        // ✅ SET PHILIPPINE TIME AS DEFAULT
+        date_default_timezone_set('Asia/Manila');
+        
         $db = new Database();
         $this->conn = $db->connect();
     }
@@ -24,8 +27,9 @@ class Notification {
         if (!ENABLE_SYSTEM_NOTIFICATIONS) return false;
         
         try {
-            $sql = "INSERT INTO notifications (user_id, user_type, title, message, type, is_read) 
-                    VALUES (:user_id, :user_type, :title, :message, :type, 0)";
+            // ✅ Use NOW() which will use server time, but we've set timezone
+            $sql = "INSERT INTO notifications (user_id, user_type, title, message, type, is_read, created_at) 
+                    VALUES (:user_id, :user_type, :title, :message, :type, 0, NOW())";
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([
                 ':user_id' => $user_id,
@@ -123,8 +127,8 @@ class Notification {
 
     public function queueEmail($to_email, $subject, $body) {
         try {
-            $sql = "INSERT INTO email_queue (to_email, subject, body, status) 
-                    VALUES (:to_email, :subject, :body, 'pending')";
+            $sql = "INSERT INTO email_queue (to_email, subject, body, status, created_at) 
+                    VALUES (:to_email, :subject, :body, 'pending', NOW())";
             $stmt = $this->conn->prepare($sql);
             return $stmt->execute([
                 ':to_email' => $to_email,
@@ -135,6 +139,17 @@ class Notification {
             error_log("Queue email error: " . $e->getMessage());
             return false;
         }
+    }
+
+    // ✅ NEW: Format datetime to Philippine Time string
+    private function formatPhilippineTime($datetime = null) {
+        if ($datetime === null) {
+            $datetime = date('Y-m-d H:i:s');
+        }
+        
+        // Create DateTime object with Philippine timezone
+        $dt = new DateTime($datetime, new DateTimeZone('Asia/Manila'));
+        return $dt->format('F j, Y h:i A');
     }
 
     // ============ SPECIFIC NOTIFICATION FUNCTIONS ============
@@ -149,11 +164,13 @@ class Notification {
             'election_started'
         );
 
-        // Email notification
+        // Email notification with PH time
+        $current_time = $this->formatPhilippineTime();
         $subject = "Election Started - {$election_name}";
         $body = $this->getEmailTemplate('election_started', [
             'election_name' => $election_name,
-            'voting_url' => SYSTEM_URL . '/student/voting.php'
+            'voting_url' => SYSTEM_URL . '/student/voting.php',
+            'current_time' => $current_time
         ]);
         
         return $this->sendEmail($student_email, $subject, $body);
@@ -169,11 +186,13 @@ class Notification {
             'nomination_approved'
         );
 
-        // Email notification
+        // Email notification with PH time
+        $current_time = $this->formatPhilippineTime();
         $subject = "Nomination Approved - {$position_name}";
         $body = $this->getEmailTemplate('nomination_approved', [
             'position_name' => $position_name,
-            'dashboard_url' => SYSTEM_URL . '/student/student_dashboard.php'
+            'dashboard_url' => SYSTEM_URL . '/student/student_dashboard.php',
+            'current_time' => $current_time
         ]);
         
         return $this->sendEmail($student_email, $subject, $body);
@@ -189,11 +208,13 @@ class Notification {
             'election_ended'
         );
 
-        // Email notification
+        // Email notification with PH time
+        $current_time = $this->formatPhilippineTime();
         $subject = "Election Ended - Results Available";
         $body = $this->getEmailTemplate('election_ended', [
             'election_name' => $election_name,
-            'results_url' => SYSTEM_URL . '/student/view_results.php'
+            'results_url' => SYSTEM_URL . '/student/view_results.php',
+            'current_time' => $current_time
         ]);
         
         return $this->sendEmail($student_email, $subject, $body);
@@ -209,12 +230,14 @@ class Notification {
             'new_nomination'
         );
 
-        // Email notification
+        // Email notification with PH time
+        $current_time = $this->formatPhilippineTime();
         $subject = "New Nomination Submitted";
         $body = $this->getEmailTemplate('admin_new_nomination', [
             'student_name' => $student_name,
             'position_name' => $position_name,
-            'nominations_url' => SYSTEM_URL . '/admin/nomination/view_nomination.php'
+            'nominations_url' => SYSTEM_URL . '/admin/nomination/view_nomination.php',
+            'current_time' => $current_time
         ]);
         
         return $this->sendEmail($admin_email, $subject, $body);
@@ -230,11 +253,13 @@ class Notification {
             'new_vote'
         );
 
-        // Email notification  
+        // Email notification with PH time
+        $current_time = $this->formatPhilippineTime();
         $subject = "New Vote Cast";
         $body = $this->getEmailTemplate('admin_new_vote', [
             'student_name' => $student_name,
-            'dashboard_url' => SYSTEM_URL . '/admin/admin_dashboard.php'
+            'dashboard_url' => SYSTEM_URL . '/admin/admin_dashboard.php',
+            'current_time' => $current_time
         ]);
         
         return $this->sendEmail($admin_email, $subject, $body);
@@ -243,6 +268,7 @@ class Notification {
     // ============ EMAIL TEMPLATES ============
     
     public function getEmailTemplate($type, $data) {
+        // ✅ Add Philippine timezone note to footer
         $header = '
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px;">
             <div style="background: #D02C4D; padding: 20px; text-align: center;">
@@ -254,10 +280,14 @@ class Notification {
             </div>
             <div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
                 <p>This is an automated message from iElect Voting System.</p>
+                <p><strong>Time shown is in Philippine Time (PHT, UTC+8)</strong></p>
             </div>
         </div>';
 
         $body = '';
+        
+        // ✅ Add timestamp to all templates
+        $timestamp = isset($data['current_time']) ? $data['current_time'] : $this->formatPhilippineTime();
         
         switch ($type) {
             case 'election_started':
@@ -265,6 +295,9 @@ class Notification {
                     <h2 style='color: #D02C4D;'>Election Has Started!</h2>
                     <p>Dear Student,</p>
                     <p>The election <strong>{$data['election_name']}</strong> has officially started.</p>
+                    <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #D02C4D; margin: 15px 0;'>
+                        <strong>📅 Date & Time:</strong> {$timestamp} (Philippine Time)
+                    </p>
                     <p>You can now:</p>
                     <ul>
                         <li>Nominate candidates for various positions</li>
@@ -286,6 +319,9 @@ class Notification {
                     <p>Dear Student,</p>
                     <p>Great news! Your nomination for the position of <strong>{$data['position_name']}</strong> 
                        has been approved by the administrator.</p>
+                    <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #10B981; margin: 15px 0;'>
+                        <strong>✅ Approved on:</strong> {$timestamp} (Philippine Time)
+                    </p>
                     <p>You are now officially a candidate for this position. Good luck!</p>
                     <p style='text-align: center; margin: 30px 0;'>
                         <a href='{$data['dashboard_url']}' 
@@ -296,50 +332,60 @@ class Notification {
                     </p>";
                 break;
                 
-                case 'election_paused':
-    $body = "
-        <h2 style='color: #F59E0B;'>Election Temporarily Paused</h2>
-        <p>Dear Student,</p>
-        <p>The election <strong>{$data['election_name']}</strong> has been temporarily paused by the administrator.</p>
-        <p>During this pause period:</p>
-        <ul>
-            <li>You cannot submit new nominations</li>
-            <li>Voting is temporarily suspended</li>
-        </ul>
-        <p>You will be notified immediately when the election resumes. Thank you for your patience.</p>
-        <p style='text-align: center; margin: 30px 0;'>
-            <a href='{$data['dashboard_url']}' 
-               style='background: #F59E0B; color: white; padding: 12px 30px; 
-                      text-decoration: none; border-radius: 5px; display: inline-block;'>
-                View Dashboard
-            </a>
-        </p>";
-    break;
+            case 'election_paused':
+                $body = "
+                    <h2 style='color: #F59E0B;'>Election Temporarily Paused</h2>
+                    <p>Dear Student,</p>
+                    <p>The election <strong>{$data['election_name']}</strong> has been temporarily paused by the administrator.</p>
+                    <p style='background: #fef3c7; padding: 10px; border-left: 4px solid #F59E0B; margin: 15px 0;'>
+                        <strong>⏸️ Paused at:</strong> {$timestamp} (Philippine Time)
+                    </p>
+                    <p>During this pause period:</p>
+                    <ul>
+                        <li>You cannot submit new nominations</li>
+                        <li>Voting is temporarily suspended</li>
+                    </ul>
+                    <p>You will be notified immediately when the election resumes. Thank you for your patience.</p>
+                    <p style='text-align: center; margin: 30px 0;'>
+                        <a href='{$data['dashboard_url']}' 
+                           style='background: #F59E0B; color: white; padding: 12px 30px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;'>
+                            View Dashboard
+                        </a>
+                    </p>";
+                break;
 
-case 'election_resumed':
-    $body = "
-        <h2 style='color: #10B981;'>Election Has Resumed!</h2>
-        <p>Dear Student,</p>
-        <p>Great news! The election <strong>{$data['election_name']}</strong> has resumed.</p>
-        <p>You can now:</p>
-        <ul>
-            <li>Continue submitting nominations</li>
-            <li>Cast your votes for candidates</li>
-        </ul>
-        <p>Don't miss your chance to participate!</p>
-        <p style='text-align: center; margin: 30px 0;'>
-            <a href='{$data['voting_url']}' 
-               style='background: #10B981; color: white; padding: 12px 30px; 
-                      text-decoration: none; border-radius: 5px; display: inline-block;'>
-                Vote Now
-            </a>
-        </p>";
-    break;
+            case 'election_resumed':
+                $body = "
+                    <h2 style='color: #10B981;'>Election Has Resumed!</h2>
+                    <p>Dear Student,</p>
+                    <p>Great news! The election <strong>{$data['election_name']}</strong> has resumed.</p>
+                    <p style='background: #d1fae5; padding: 10px; border-left: 4px solid #10B981; margin: 15px 0;'>
+                        <strong>▶️ Resumed at:</strong> {$timestamp} (Philippine Time)
+                    </p>
+                    <p>You can now:</p>
+                    <ul>
+                        <li>Continue submitting nominations</li>
+                        <li>Cast your votes for candidates</li>
+                    </ul>
+                    <p>Don't miss your chance to participate!</p>
+                    <p style='text-align: center; margin: 30px 0;'>
+                        <a href='{$data['voting_url']}' 
+                           style='background: #10B981; color: white; padding: 12px 30px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;'>
+                            Vote Now
+                        </a>
+                    </p>";
+                break;
+
             case 'election_ended':
                 $body = "
                     <h2 style='color: #D02C4D;'>Election Results Available</h2>
                     <p>Dear Student,</p>
                     <p>The election <strong>{$data['election_name']}</strong> has officially ended.</p>
+                    <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #D02C4D; margin: 15px 0;'>
+                        <strong>🏁 Ended on:</strong> {$timestamp} (Philippine Time)
+                    </p>
                     <p>The results are now available for viewing. Thank you for your participation!</p>
                     <p style='text-align: center; margin: 30px 0;'>
                         <a href='{$data['results_url']}' 
@@ -356,6 +402,9 @@ case 'election_resumed':
                     <p>Dear Admin,</p>
                     <p><strong>{$data['student_name']}</strong> has submitted a nomination for the position 
                        of <strong>{$data['position_name']}</strong>.</p>
+                    <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #3B82F6; margin: 15px 0;'>
+                        <strong>🕒 Submitted at:</strong> {$timestamp} (Philippine Time)
+                    </p>
                     <p>Please review and approve or reject this nomination.</p>
                     <p style='text-align: center; margin: 30px 0;'>
                         <a href='{$data['nominations_url']}' 
@@ -371,6 +420,9 @@ case 'election_resumed':
                     <h2 style='color: #D02C4D;'>New Vote Cast</h2>
                     <p>Dear Admin,</p>
                     <p><strong>{$data['student_name']}</strong> has successfully cast their vote.</p>
+                    <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #10B981; margin: 15px 0;'>
+                        <strong>🗳️ Voted at:</strong> {$timestamp} (Philippine Time)
+                    </p>
                     <p style='text-align: center; margin: 30px 0;'>
                         <a href='{$data['dashboard_url']}' 
                            style='background: #D02C4D; color: white; padding: 12px 30px; 
