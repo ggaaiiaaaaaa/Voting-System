@@ -35,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errors)) {
         $login_successful = false;
 
+        // Try Admin/Superadmin Login First
         $user = new User();
         $user->username = $username;
         $user->password = $password;
@@ -52,20 +53,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit;
         }
 
+        // Try Student Login
         $student = new Student();
         $student->student_id = $username;
         $student->password = $password;
 
         if ($student->login()) {
-            $_SESSION["user_id"] = $student->id;
-            $_SESSION["role"] = 'student';
-            $login_successful = true;
+            // ✅ ADDITIONAL CHECK: Verify status after login
+            if ($student->status === 'Active') {
+                $_SESSION["user_id"] = $student->id;
+                $_SESSION["role"] = 'student';
+                $login_successful = true;
 
-            header("Location: ../student/student_dashboard.php");
-            exit;
+                header("Location: ../student/student_dashboard.php");
+                exit;
+            } else {
+                // Account exists but is inactive
+                $errors['login'] = "Your account has been deactivated. Please contact the administrator.";
+            }
         }
 
-        if (!$login_successful) {
+        // If still not successful, show generic error
+        if (!$login_successful && empty($errors['login'])) {
             $errors['login'] = "Invalid username or password";
         }
     }
@@ -192,8 +201,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
 
         <?php if (!empty($errors['login'])): ?>
-            <div class="bg-red-500/20 border-l-4 border-red-600 text-red-400 px-4 py-3 rounded-lg mb-6 animate-slide-in">
-                <span class="block sm:inline"><?= $errors['login'] ?></span>
+            <div class="<?= strpos($errors['login'], 'deactivated') !== false ? 'bg-yellow-500/20 border-yellow-600 text-yellow-300' : 'bg-red-500/20 border-red-600 text-red-400' ?> border-l-4 px-4 py-3 rounded-lg mb-6 animate-slide-in">
+                <div class="flex items-start gap-2">
+                    <?php if (strpos($errors['login'], 'deactivated') !== false): ?>
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    <?php else: ?>
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    <?php endif; ?>
+                    <span class="block sm:inline text-sm"><?= $errors['login'] ?></span>
+                </div>
             </div>
         <?php endif; ?>
 
