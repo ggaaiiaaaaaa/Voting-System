@@ -126,65 +126,76 @@ if (isset($result['success']) && $result['success']) {
     <title>Vote for Candidates</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-sans min-h-screen">
 <div class="flex min-h-screen">
 
     <?php include '../includes/student_sidebar.php'; ?>
 
-    <!-- Main Content -->
+    <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">
-        <header class="mb-8">
-            <h2 class="text-2xl font-semibold text-[#D02C4D]">🗳️ Vote for Candidates</h2>
-            <p class="text-sm text-gray-500">Select one candidate per position.</p>
+        <!-- HEADER -->
+        <header class="relative z-40 flex justify-between items-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 animate-fade-in">
+            <div>
+                <h2 class="text-3xl font-bold text-white drop-shadow-lg"> Vote for Candidates</h2>
+                <p class="text-sm text-gray-300 mt-1">Select one candidate per position.</p>
+            </div>
         </header>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="bg-green-100 text-green-700 p-4 rounded mb-4"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <!-- ALERT MESSAGES -->
+        <?php if(isset($_SESSION['success'])): ?>
+            <div class="mb-6 bg-green-500/20 backdrop-blur-sm border border-green-500/30 text-green-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
         <?php endif; ?>
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php if(isset($_SESSION['error'])): ?>
+            <div class="mb-6 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
-        <form method="POST">
-            <?php foreach ($positions as $pos): ?>
-                <?php $nominations = $nominationsByPosition[$pos['id']]; ?>
-                <section class="bg-white shadow rounded-xl p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-700">
-                        <?= htmlspecialchars($pos['position_name']) ?>
+        <!-- VOTING FORM -->
+        <section class="bg-white/10 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-white/20 animate-fade-in-up max-w-2xl">
+            <form method="POST" class="space-y-6">
+
+                <?php foreach ($positions as $pos): ?>
+                    <?php $nominations = $nominationsByPosition[$pos['id']]; ?>
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-2">
+                            <?= htmlspecialchars($pos['position_name']) ?>
+                            <?php if (!empty($nominations)): ?>
+                                <span class="text-sm text-red-500 font-normal">(Required)</span>
+                            <?php endif; ?>
+                        </h3>
+
                         <?php if (!empty($nominations)): ?>
-                            <span class="text-sm text-red-500 font-normal">(Required)</span>
+                            <?php 
+                            $is_required = in_array($pos['id'], $required_position_ids);
+                            $required_html = $is_required ? 'required' : '';
+                            ?>
+                            <?php foreach ($nominations as $nom): ?>
+                                <label class="flex items-center gap-2 mt-2 text-gray-300">
+                                    <input 
+                                        type="radio" 
+                                        name="votes[<?= $pos['id'] ?>]" 
+                                        value="<?= $nom['nomination_id'] ?>" 
+                                        <?= $required_html ?>
+                                        class="text-blue-500"
+                                    >
+                                    <span><?= htmlspecialchars($nom['candidate_name']) ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-gray-500 mt-2">No approved candidates for this position yet. Skipping this vote.</p>
                         <?php endif; ?>
-                    </h3>
+                    </div>
+                <?php endforeach; ?>
 
-                    <?php if (!empty($nominations)): ?>
-                        <?php 
-                        $is_required = in_array($pos['id'], $required_position_ids);
-                        $required_html = $is_required ? 'required' : '';
-                        ?>
-                        <?php foreach ($nominations as $nom): ?>
-                            <label class="flex items-center gap-2 mt-2">
-                                <input 
-                                    type="radio" 
-                                    name="votes[<?= $pos['id'] ?>]" 
-                                    value="<?= $nom['nomination_id'] ?>" 
-                                    <?= $required_html ?>
-                                >
-                                <span><?= htmlspecialchars($nom['candidate_name']) ?></span>
-                            </label>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-gray-500 mt-2">No approved candidates for this position yet. Skipping this vote.</p>
-                    <?php endif; ?>
-                </section>
-            <?php endforeach; ?>
-
-            <button 
-                type="submit" 
-                class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-medium"
-            >
-                Submit Votes
-            </button>
-        </form>
+                <!-- SUBMIT BUTTON -->
+                <div class="pt-4">
+                    <button 
+                        type="submit" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 w-full md:w-auto">
+                        Submit Votes
+                    </button>
+                </div>
+            </form>
+        </section>
     </main>
 </div>
 </body>

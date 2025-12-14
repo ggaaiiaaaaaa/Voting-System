@@ -3,7 +3,6 @@ session_start();
 require_once __DIR__ . "/../classes/election.php";
 require_once __DIR__ . "/../classes/position.php";
 require_once __DIR__ . "/../classes/student.php";
-require_once __DIR__ . "/../classes/teacher.php";
 
 // Redirect if not logged in or not admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -62,6 +61,7 @@ $endDisabled = ($status === 'Ended') ? 'disabled opacity-50 cursor-not-allowed' 
 
 // Nomination summary
 $nominations = $electionObj->getNominationSummary();
+$total_nominations = array_sum(array_column($nominations, 'total_nominees'));
 
 // Voter stats
 $stats = $electionObj->getVoterStats();
@@ -83,26 +83,7 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-out;
-        }
-        .animate-fade-in-up {
-            animation: fadeInUp 1s ease-out;
-        }
-        .animate-fade-in-up:nth-child(1) { animation-delay: 0.1s; }
-        .animate-fade-in-up:nth-child(2) { animation-delay: 0.2s; }
-        .animate-fade-in-up:nth-child(3) { animation-delay: 0.3s; }
-        .animate-fade-in-up:nth-child(4) { animation-delay: 0.4s; }
-    </style>
+
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-sans min-h-screen">
 <div class="flex min-h-screen">
@@ -112,7 +93,7 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">
         <!-- HEADER -->
-<header class="flex justify-between items-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 animate-fade-in">
+<header class="relative z-40 flex justify-between items-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 animate-fade-in">
     <div>
         <h2 class="text-3xl font-bold text-white drop-shadow-lg">Dashboard Overview</h2>
         <p class="text-sm text-gray-300 mt-1">Welcome back, Admin!</p>
@@ -148,6 +129,17 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
                 </div>
                 <p class="text-yellow-100 text-sm font-medium">Total Positions</p>
                 <h3 class="text-3xl font-bold text-white mt-2"><?= $total_positions ?></h3>
+            </div>
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl rounded-2xl p-6 border border-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-300 transform">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="bg-white/20 p-3 rounded-full">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-blue-100 text-sm font-medium">Total Nominations</p>
+                <h3 class="text-3xl font-bold text-white mt-2"><?= $total_nominations ?></h3>
             </div>
             <div class="bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl rounded-2xl p-6 border border-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-300 transform">
                 <div class="flex items-center justify-between mb-4">

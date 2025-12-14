@@ -10,7 +10,8 @@ $notifications = $notifObj->getAllNotifications($user_id, $user_type, 10);
 ?>
 
 <div class="relative" x-data="{ open: false }">
-    <button @click="open = !open" class="relative p-2 text-white hover:text-gray-300">
+    <!-- Button -->
+    <button @click="open = !open" class="relative p-2 text-white hover:text-gray-300 focus:outline-none">
         🔔
         <?php if ($unread_count > 0): ?>
             <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
@@ -19,9 +20,24 @@ $notifications = $notifObj->getAllNotifications($user_id, $user_type, 10);
         <?php endif; ?>
     </button>
 
-    <div x-show="open" @click.away="open = false"
-         class="absolute right-0 mt-2 w-80 bg-slate-800 rounded-lg shadow-2xl overflow-hidden z-60 border border-white/20"
+    <!-- Dropdown Menu -->
+    <!-- 
+       FIXES APPLIED:
+       1. Changed z-100 to z-[100] (Arbitrary value syntax)
+       2. Added 'origin-top-right' for better animation alignment
+    -->
+    <div x-show="open" 
+         @click.away="open = false"
+         x-transition:enter="transition ease-out duration-100"
+         x-transition:enter-start="transform opacity-0 scale-95"
+         x-transition:enter-end="transform opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-75"
+         x-transition:leave-start="transform opacity-100 scale-100"
+         x-transition:leave-end="transform opacity-0 scale-95"
+         class="absolute right-0 mt-2 w-80 bg-slate-800 rounded-lg shadow-2xl overflow-hidden z-[100] border border-white/20 origin-top-right"
          style="display: none;">
+         
+        <!-- Header -->
         <div class="p-3 bg-slate-700 border-b border-white/20">
             <div class="flex justify-between items-center">
                 <h3 class="font-semibold text-white">Notifications</h3>
@@ -33,6 +49,7 @@ $notifications = $notifObj->getAllNotifications($user_id, $user_type, 10);
             </div>
         </div>
 
+        <!-- Content -->
         <div class="max-h-96 overflow-y-auto">
             <?php if (empty($notifications)): ?>
                 <div class="p-4 text-center text-gray-400">
@@ -59,6 +76,7 @@ $notifications = $notifObj->getAllNotifications($user_id, $user_type, 10);
             <?php endif; ?>
         </div>
 
+        <!-- Footer -->
         <div class="p-3 bg-slate-700 border-t border-white/20 text-center">
             <a href="../<?= $user_type ?>/notifications.php" class="text-sm text-blue-400 hover:underline">
                 View all notifications
