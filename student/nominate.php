@@ -125,10 +125,10 @@ if ($result) {
 
         <!-- ALERT MESSAGES -->
         <?php if(isset($_SESSION['success'])): ?>
-            <div class="mb-6 bg-green-500/20 backdrop-blur-sm border border-green-500/30 text-green-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <div class="mb-6 bg-green-100 border-l-4 border-green-600 text-green-700 px-4 py-3 rounded animate-fade-in-up"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
         <?php endif; ?>
         <?php if(isset($_SESSION['error'])): ?>
-            <div class="mb-6 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <div class="mb-6 bg-red-100 border-l-4 border-red-600 text-red-700 px-4 py-3 rounded animate-fade-in-up"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
         <!-- NOMINATION FORM -->
@@ -138,7 +138,7 @@ if ($result) {
                 <!-- SELECT STUDENT (Nominee) -->
                 <div>
                     <label for="nominee_id" class="block font-semibold text-gray-300 mb-2">Select Student to Nominate:</label>
-                    <select id="nominee_id" name="nominee_id" required class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <select id="nominee_id" name="nominee_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                         <option value="">-- Choose a Student --</option>
                         <?php foreach ($students as $stud): ?>
                             <option value="<?= htmlspecialchars($stud['id']) ?>" <?= $stud['id'] == $student_id ? 'selected' : '' ?>>
@@ -153,7 +153,7 @@ if ($result) {
                 <!-- SELECT POSITION -->
                 <div>
                     <label for="position_id" class="block font-semibold text-gray-300 mb-2">Select Position:</label>
-                    <select id="position_id" name="position_id" required class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <select id="position_id" name="position_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                         <option value="">-- Choose a Position --</option>
                         <?php foreach ($positions as $pos): ?>
                             <option value="<?= $pos['id'] ?>" <?= in_array($pos['id'], $alreadyNominated) ? 'disabled' : '' ?>>

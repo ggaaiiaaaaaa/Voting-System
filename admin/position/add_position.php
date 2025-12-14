@@ -56,42 +56,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Position</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 font-sans min-h-screen">
 <div class="flex min-h-screen">
 
     <?php include '../../includes/admin_sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 ml-64 p-8">
-        <div class="flex justify-between items-center mb-8">
+        <!-- HEADER -->
+        <header class="relative z-40 flex justify-between items-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 animate-fade-in">
             <div>
-                <h2 class="text-2xl font-semibold text-[#D02C4D]">Add New Position</h2>
-                <p class="text-sm text-gray-500">Fill in the form to add a new position.</p>
+                <h2 class="text-3xl font-bold text-white drop-shadow-lg">Add New Position</h2>
+                <p class="text-sm text-gray-300 mt-1">Fill in the form to add a new position record.</p>
             </div>
-            <a href="view_position.php" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">← Back</a>
-        </div>
+            <a href="view_position.php" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 w-full md:w-auto">← Back</a>
+        </header>
 
-        <section class="bg-white shadow rounded-xl p-6 max-w-xl">
-            <?php if (!empty($errors["general"])): ?>
-                <div class="bg-[#FEEAEA] border-l-4 border-[#D02C4D] text-[#D02C4D] px-4 py-3 rounded mb-4">
-                    <?= htmlspecialchars($errors["general"]) ?>
-                </div>
-            <?php endif; ?>
+        <!-- ALERT MESSAGES -->
+        <?php if (!empty($errors['general'])): ?>
+            <div class="mb-6 bg-red-500/20 border-l-4 border-red-600 text-red-400 px-4 py-3 rounded animate-fade-in-up">
+                <?= htmlspecialchars($errors['general']) ?>
+            </div>
+        <?php endif; ?>
 
-            <form method="post" class="space-y-6">
+        <!-- FORM SECTION -->
+        <section class="bg-white/10 backdrop-blur-sm shadow-2xl rounded-2xl p-6 border border-white/20 animate-fade-in-up max-w-xl">
+            <form action="" method="POST" class="space-y-6">
                 <!-- POSITION NAME -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Position Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="position_name" value="<?= htmlspecialchars($position["position_name"] ?? '') ?>" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
-                    <?php if (!empty($errors["position_name"])): ?>
-                        <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors["position_name"]) ?></p>
+                    <label class="block text-sm font-medium text-white mb-1">Position Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="position_name" value="<?= htmlspecialchars($position['position_name'] ?? '') ?>" class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <?php if (!empty($errors['position_name'])): ?>
+                        <p class="text-red-400 text-sm mt-1"><?= $errors['position_name'] ?></p>
                     <?php endif; ?>
                 </div>
 
                 <!-- POSITION ORDER -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Position Order <span class="text-red-500">*</span></label>
-                    <select name="position_order" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
+                    <label class="block text-sm font-medium text-white mb-1">Position Order <span class="text-red-500">*</span></label>
+                    <select name="position_order" class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <option value="">-- Select Order --</option>
                         <?php for ($i = 1; $i <= $maxOrder + 1; $i++): ?>
                             <option value="<?= $i ?>" <?= (($position["position_order"] ?? null) == $i) ? "selected" : "" ?>>
@@ -99,24 +102,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </option>
                         <?php endfor; ?>
                     </select>
-                    <?php if (!empty($errors["position_order"])): ?>
-                        <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors["position_order"]) ?></p>
+                    <?php if (!empty($errors['position_order'])): ?>
+                        <p class="text-red-400 text-sm mt-1"><?= $errors['position_order'] ?></p>
                     <?php endif; ?>
-                    <p class="text-xs text-gray-500 mt-1">If this order already exists, the lower positions will be shifted down automatically.</p>
+                    <p class="text-xs text-gray-300 mt-1">If this order already exists, the lower positions will be shifted down automatically.</p>
                 </div>
 
                 <!-- MAX NOMINEES -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Nominees <span class="text-red-500">*</span></label>
-                    <input type="number" name="max_nominees" value="<?= htmlspecialchars($position["max_nominees"] ?? '') ?>" min="1" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#D02C4D] focus:outline-none">
-                    <?php if (!empty($errors["max_nominees"])): ?>
-                        <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors["max_nominees"]) ?></p>
+                    <label class="block text-sm font-medium text-white mb-1">Max Nominees <span class="text-red-500">*</span></label>
+                    <input type="number" name="max_nominees" value="<?= htmlspecialchars($position['max_nominees'] ?? '') ?>" min="1" class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <?php if (!empty($errors['max_nominees'])): ?>
+                        <p class="text-red-400 text-sm mt-1"><?= $errors['max_nominees'] ?></p>
                     <?php endif; ?>
                 </div>
 
-                <!-- SUBMIT BUTTON -->
+                <!-- SUBMIT -->
                 <div class="pt-4">
-                    <button type="submit" class="bg-[#D02C4D] hover:bg-[#A0223B] text-white px-6 py-2 rounded-lg font-semibold">Save Position</button>
+                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">Save Position</button>
                 </div>
             </form>
         </section>

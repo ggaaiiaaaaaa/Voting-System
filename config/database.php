@@ -1,7 +1,7 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $db_name = "votingsystem";
+    private $db_name = "voting";
     private $username = "root";
     private $password = "";
     private $conn;
@@ -22,5 +22,3 @@ class Database {
     }
 }
 ?>
-
-

@@ -20,11 +20,9 @@ class Position {
         try {
             $this->conn->beginTransaction();
 
+            // If no order specified, add to the end
             if (empty($this->position_order)) {
                 $this->position_order = $this->getMaxOrder();
-            } else {
-                // Shift existing positions to make space for this order
-                $this->makeRoomForOrder($this->position_order);
             }
 
             $sql = "INSERT INTO positions (position_name, position_order, max_nominees, status)
