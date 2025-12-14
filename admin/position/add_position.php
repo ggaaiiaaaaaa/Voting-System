@@ -95,17 +95,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <label class="block text-sm font-medium text-white mb-1">Position Order <span class="text-red-500">*</span></label>
                     <select name="position_order" class="w-full bg-white/10 border border-white/20 rounded-lg p-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <option value="">-- Select Order --</option>
-                        <?php for ($i = 1; $i <= $maxOrder + 1; $i++): ?>
-                            <option value="<?= $i ?>" <?= (($position["position_order"] ?? null) == $i) ? "selected" : "" ?>>
-                                <?= $posObj->numberToWords($i) ?> (Order <?= $i ?>)
-                            </option>
-                        <?php endfor; ?>
+                        <option value="" class="text-gray-900">-- Select Order --</option>
+                        <?php
+                        if (isset($maxOrder)):
+                            for ($i = 1; $i <= $maxOrder + 1; $i++): ?>
+                                <option value="<?= $i ?>" class="text-gray-900" <?= (($position["position_order"] ?? '') == $i) ? 'selected' : '' ?>>
+                                    <?= $posObj->numberToWords($i) ?> (Order <?= $i ?>)
+                                </option>
+                            <?php endfor;
+                        endif;
+                        ?>
                     </select>
-                    <?php if (!empty($errors['position_order'])): ?>
-                        <p class="text-red-400 text-sm mt-1"><?= $errors['position_order'] ?></p>
+                    <?php if (!empty($errors["position_order"])): ?>
+                        <p class="text-red-400 text-sm mt-1"><?= htmlspecialchars($errors["position_order"]) ?></p>
                     <?php endif; ?>
-                    <p class="text-xs text-gray-300 mt-1">If this order already exists, the lower positions will be shifted down automatically.</p>
                 </div>
 
                 <!-- MAX NOMINEES -->

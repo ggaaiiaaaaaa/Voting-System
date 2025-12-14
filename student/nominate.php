@@ -20,22 +20,20 @@ $studentObj = new Student();
 $positions = $posObj->viewPositions();
 
 // Fetch student nominations to disable already nominated positions
-// This determines which positions the current student has already nominated FOR.
 $student_nominations = $electionObj->getStudentNominations($student_id);
 $alreadyNominated = array_column($student_nominations, 'position_id');
 
 // Fetch all students (include self now)
 $students = $studentObj->viewAllStudents();
-// --- Check admin-controlled election status ---
-$election_status = $electionObj->getAdminControlledStatus(); // Ongoing, Paused, Ended, Upcoming
+
+// Check admin-controlled election status
+$election_status = $electionObj->getAdminControlledStatus();
 
 if ($election_status !== 'Ongoing') {
     if ($election_status === 'Ended') {
-        // Redirect to results if election ended
         header("Location: view_results.php");
         exit;
     } else {
-        // Pause or Upcoming: show message and block form
         $_SESSION['error'] = "Nominations are not allowed at this time. Election status: $election_status.";
         header("Location: student_dashboard.php");
         exit;
@@ -47,57 +45,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $position_id = $_POST['position_id'];
     $nominee_id = $_POST['nominee_id'];
 
-    // --- NEW SERVER-SIDE VALIDATION ---
     // Check if the student has already nominated for this specific position
     if (in_array($position_id, $alreadyNominated)) {
         $_SESSION['error'] = "Nomination failed. You have already submitted a nomination for the selected position.";
         header("Location: nominate.php");
         exit;
     }
-    // --- END NEW VALIDATION ---
+
+    // ✅ NEW: Check if position has reached max nominees
+    if ($posObj->hasReachedMaxNominees($position_id)) {
+        $positionData = $posObj->fetchPosition($position_id);
+        $_SESSION['error'] = "Nomination failed. The position '{$positionData['position_name']}' has reached the maximum number of nominees ({$positionData['max_nominees']}).";
+        header("Location: nominate.php");
+        exit;
+    }
 
     $result = $electionObj->submitNomination($student_id, $nominee_id, $position_id);
 
-// After: $result = $electionObj->submitNomination(...)
-// After successful nomination
-if ($result) {
-    require_once __DIR__ . "/../classes/notification.php";
-    require_once __DIR__ . "/../classes/user.php";
-    
-    $notifObj = new Notification();
-    $userObj = new User();
-    $studentObj = new Student();
-    
-    // Get student info
-    $studentData = $studentObj->fetchStudent($student_id);
-    $student_name = $studentData['fullname'];
-    
-    // Get position name
-    $positionData = $posObj->fetchPosition($position_id);
-    $position_name = $positionData['position_name'];
-    
-    // Get admin email and ID
-    $admin_email = $userObj->getAdminEmail();
-    $admin_id = $userObj->getAdminIdByEmail($admin_email);
-    
-    // Notify admin (both system and email)
-    if ($admin_email && $admin_id) {
-        $notifObj->notifyAdminNewNomination(
-            $admin_id,
-            $admin_email,
-            $student_name,
-            $position_name
-        );
-    }
-    
-    $_SESSION['success'] = "Nomination submitted successfully!";
-} else {
-        // This 'else' catches failures from the Election class (e.g., database error)
-        $_SESSION['error'] = "Nomination failed. An internal error occurred.";
+    // After successful nomination
+    if ($result && isset($result['success'])) {
+        require_once __DIR__ . "/../classes/notification.php";
+        require_once __DIR__ . "/../classes/user.php";
+        
+        $notifObj = new Notification();
+        $userObj = new User();
+        
+        // Get student info
+        $studentData = $studentObj->fetchStudent($student_id);
+        $student_name = $studentData['fullname'];
+        
+        // Get position name
+        $positionData = $posObj->fetchPosition($position_id);
+        $position_name = $positionData['position_name'];
+        
+        // Get admin email and ID
+        $admin_email = $userObj->getAdminEmail();
+        $admin_id = $userObj->getAdminIdByEmail($admin_email);
+        
+        // Notify admin (both system and email)
+        if ($admin_email && $admin_id) {
+            $notifObj->notifyAdminNewNomination(
+                $admin_id,
+                $admin_email,
+                $student_name,
+                $position_name
+            );
+        }
+        
+        $_SESSION['success'] = "Nomination submitted successfully!";
+    } else {
+        $_SESSION['error'] = $result['error'] ?? "Nomination failed. An internal error occurred.";
     }
 
     header("Location: nominate.php");
     exit;
+}
+
+// ✅ NEW: Build array of positions that have reached max nominees
+$maxedOutPositions = [];
+foreach ($positions as $pos) {
+    if ($posObj->hasReachedMaxNominees($pos['id'])) {
+        $maxedOutPositions[] = $pos['id'];
+    }
 }
 ?>
 
@@ -125,10 +134,10 @@ if ($result) {
 
         <!-- ALERT MESSAGES -->
         <?php if(isset($_SESSION['success'])): ?>
-            <div class="mb-6 bg-green-100 border-l-4 border-green-600 text-green-700 px-4 py-3 rounded animate-fade-in-up"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <div class="mb-6 bg-green-500/20 backdrop-blur-sm border border-green-500/30 text-green-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
         <?php endif; ?>
         <?php if(isset($_SESSION['error'])): ?>
-            <div class="mb-6 bg-red-100 border-l-4 border-red-600 text-red-700 px-4 py-3 rounded animate-fade-in-up"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <div class="mb-6 bg-red-500/20 backdrop-blur-sm border border-red-500/30 text-red-300 px-6 py-4 rounded-xl shadow-lg"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
         <!-- NOMINATION FORM -->
@@ -155,21 +164,47 @@ if ($result) {
                     <label for="position_id" class="block font-semibold text-gray-300 mb-2">Select Position:</label>
                     <select id="position_id" name="position_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500">
                         <option value="">-- Choose a Position --</option>
-                        <?php foreach ($positions as $pos): ?>
-                            <option value="<?= $pos['id'] ?>" <?= in_array($pos['id'], $alreadyNominated) ? 'disabled' : '' ?>>
+                        <?php foreach ($positions as $pos): 
+                            $isDisabled = in_array($pos['id'], $alreadyNominated) || in_array($pos['id'], $maxedOutPositions);
+                            $currentCount = $posObj->getCurrentNomineeCount($pos['id']);
+                            $maxNominees = $pos['max_nominees'];
+                            
+                            $reason = '';
+                            if (in_array($pos['id'], $alreadyNominated)) {
+                                $reason = '(Already Nominated by You)';
+                            } elseif (in_array($pos['id'], $maxedOutPositions)) {
+                                $reason = "(Max Nominees Reached: {$currentCount}/{$maxNominees})";
+                            } else {
+                                $reason = "({$currentCount}/{$maxNominees} nominees)";
+                            }
+                        ?>
+                            <option value="<?= $pos['id'] ?>" <?= $isDisabled ? 'disabled' : '' ?>>
                                 <?= htmlspecialchars($pos['position_name']) ?>
-                                <?= in_array($pos['id'], $alreadyNominated) ? '(Already Nominated by You)' : '' ?>
+                                <?= $reason ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if (count($alreadyNominated) === count($positions) && count($positions) > 0): ?>
-                        <p class="text-sm text-gray-500 mt-2">You have nominated for all available positions.</p>
+                    
+                    <?php 
+                    $availablePositions = count($positions) - count($alreadyNominated) - count($maxedOutPositions);
+                    if ($availablePositions === 0 && count($positions) > 0): 
+                    ?>
+                        <p class="text-sm text-yellow-400 mt-2">
+                            No positions available. All positions are either already nominated by you or have reached their maximum nominees.
+                        </p>
+                    <?php elseif (count($maxedOutPositions) > 0): ?>
+                        <p class="text-sm text-gray-400 mt-2">
+                            Some positions have reached their maximum number of nominees and cannot accept more nominations.
+                        </p>
                     <?php endif; ?>
                 </div>
 
                 <!-- SUBMIT BUTTON -->
                 <div class="pt-4">
-                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 w-full md:w-auto">
+                    <button 
+                        type="submit" 
+                        <?= $availablePositions === 0 ? 'disabled' : '' ?>
+                        class="<?= $availablePositions === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' ?> text-white px-8 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 w-full md:w-auto">
                         Submit Nomination
                     </button>
                 </div>

@@ -66,7 +66,7 @@ foreach ($uniqueResults as $pos => $cands) {
         <!-- HEADER -->
         <header class="relative z-40 flex justify-between items-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20 animate-fade-in">
             <div>
-                <h2 class="text-3xl font-bold text-white drop-shadow-lg">📊 Election Results</h2>
+                <h2 class="text-3xl font-bold text-white drop-shadow-lg"> Election Results</h2>
                 <p class="text-sm text-gray-300 mt-1">Final votes per position and winner summary.</p>
             </div>
             <div class="flex gap-4">

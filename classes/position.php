@@ -59,7 +59,7 @@ class Position {
             $old = $this->fetchPosition($id);
 
             if ($old && $old['position_order'] != $this->position_order) {
-                $this->overrideOrder($old['position_order'], $this->position_order, $id);
+                $this->reorderPositionsOnEdit($id, $this->position_order);
             }
 
             $sql = "UPDATE positions 
@@ -122,14 +122,13 @@ class Position {
     }
 
     // -------------------- VIEW POSITIONS --------------------
-public function viewPositions() {
-    $sql = "SELECT * FROM positions ORDER BY position_order ASC";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute();
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $result ?: []; // return empty array if no rows
-}
-
+    public function viewPositions() {
+        $sql = "SELECT * FROM positions ORDER BY position_order ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result ?: [];
+    }
 
     // -------------------- DUPLICATE CHECKS --------------------
     public function isNameExist($position_name, $id = "") {
@@ -174,31 +173,44 @@ public function viewPositions() {
         $stmt->execute();
     }
 
-    private function overrideOrder($old_order, $new_order, $current_id) {
-        if ($new_order == $old_order) return;
+    // ✅ FIXED: Added the missing reorderPositionsOnEdit method
+    public function reorderPositionsOnEdit($current_id, $new_order) {
+        try {
+            // Get current order of the position being edited
+            $current = $this->fetchPosition($current_id);
+            if (!$current) return false;
+            
+            $old_order = $current['position_order'];
+            
+            // If order hasn't changed, no need to reorder
+            if ($old_order == $new_order) return true;
 
-        if ($new_order < $old_order) {
-            // Moving up: shift others down
-            $sql = "UPDATE positions 
-                    SET position_order = position_order + 1 
-                    WHERE position_order >= :new_order 
-                      AND position_order < :old_order 
-                      AND id <> :id";
-        } else {
-            // Moving down: shift others up
-            $sql = "UPDATE positions 
-                    SET position_order = position_order - 1 
-                    WHERE position_order <= :new_order 
-                      AND position_order > :old_order 
-                      AND id <> :id";
+            if ($new_order < $old_order) {
+                // Moving up: shift positions down between new_order and old_order
+                $sql = "UPDATE positions 
+                        SET position_order = position_order + 1 
+                        WHERE position_order >= :new_order 
+                          AND position_order < :old_order 
+                          AND id <> :id";
+            } else {
+                // Moving down: shift positions up between old_order and new_order
+                $sql = "UPDATE positions 
+                        SET position_order = position_order - 1 
+                        WHERE position_order <= :new_order 
+                          AND position_order > :old_order 
+                          AND id <> :id";
+            }
+
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([
+                ':new_order' => $new_order,
+                ':old_order' => $old_order,
+                ':id' => $current_id
+            ]);
+        } catch (PDOException $e) {
+            error_log("reorderPositionsOnEdit Error: " . $e->getMessage());
+            return false;
         }
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([
-            ':new_order' => $new_order,
-            ':old_order' => $old_order,
-            ':id' => $current_id
-        ]);
     }
 
     private function normalizeOrder() {
@@ -239,6 +251,49 @@ public function viewPositions() {
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row['total'] ?? 0;
+    }
+
+    // ✅ NEW: Check if position has reached max nominees
+    public function hasReachedMaxNominees($position_id) {
+        try {
+            // Get position max_nominees
+            $position = $this->fetchPosition($position_id);
+            if (!$position) return true; // Safe default: block if position not found
+            
+            $max_nominees = (int)$position['max_nominees'];
+            
+            // Count current approved nominations for this position
+            $sql = "SELECT COUNT(DISTINCT nominee_id) as total 
+                    FROM nominations 
+                    WHERE position_id = :position_id 
+                    AND status = 'Approved'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([':position_id' => $position_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $current_count = (int)($row['total'] ?? 0);
+            
+            return $current_count >= $max_nominees;
+        } catch (PDOException $e) {
+            error_log("hasReachedMaxNominees Error: " . $e->getMessage());
+            return true; // Safe default: block on error
+        }
+    }
+
+    // ✅ NEW: Get current nominee count for a position
+    public function getCurrentNomineeCount($position_id) {
+        try {
+            $sql = "SELECT COUNT(DISTINCT nominee_id) as total 
+                    FROM nominations 
+                    WHERE position_id = :position_id 
+                    AND status = 'Approved'";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([':position_id' => $position_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)($row['total'] ?? 0);
+        } catch (PDOException $e) {
+            error_log("getCurrentNomineeCount Error: " . $e->getMessage());
+            return 0;
+        }
     }
 
     // -------------------- LOG ACTION --------------------
