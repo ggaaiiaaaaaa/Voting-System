@@ -242,7 +242,7 @@ class Notification {
 
     // ============ EMAIL TEMPLATES ============
     
-    private function getEmailTemplate($type, $data) {
+    public function getEmailTemplate($type, $data) {
         $header = '
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px;">
             <div style="background: #D02C4D; padding: 20px; text-align: center;">
@@ -253,8 +253,7 @@ class Notification {
         $footer = '
             </div>
             <div style="text-align: center; padding: 20px; color: #666; font-size: 12px;">
-                <p>This is an automated message from WMSU iElect System.</p>
-                <p>&copy; ' . date('Y') . ' Western Mindanao State University</p>
+                <p>This is an automated message from iElect Voting System.</p>
             </div>
         </div>';
 
@@ -296,7 +295,46 @@ class Notification {
                         </a>
                     </p>";
                 break;
+                
+                case 'election_paused':
+    $body = "
+        <h2 style='color: #F59E0B;'>Election Temporarily Paused</h2>
+        <p>Dear Student,</p>
+        <p>The election <strong>{$data['election_name']}</strong> has been temporarily paused by the administrator.</p>
+        <p>During this pause period:</p>
+        <ul>
+            <li>You cannot submit new nominations</li>
+            <li>Voting is temporarily suspended</li>
+        </ul>
+        <p>You will be notified immediately when the election resumes. Thank you for your patience.</p>
+        <p style='text-align: center; margin: 30px 0;'>
+            <a href='{$data['dashboard_url']}' 
+               style='background: #F59E0B; color: white; padding: 12px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;'>
+                View Dashboard
+            </a>
+        </p>";
+    break;
 
+case 'election_resumed':
+    $body = "
+        <h2 style='color: #10B981;'>Election Has Resumed!</h2>
+        <p>Dear Student,</p>
+        <p>Great news! The election <strong>{$data['election_name']}</strong> has resumed.</p>
+        <p>You can now:</p>
+        <ul>
+            <li>Continue submitting nominations</li>
+            <li>Cast your votes for candidates</li>
+        </ul>
+        <p>Don't miss your chance to participate!</p>
+        <p style='text-align: center; margin: 30px 0;'>
+            <a href='{$data['voting_url']}' 
+               style='background: #10B981; color: white; padding: 12px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;'>
+                Vote Now
+            </a>
+        </p>";
+    break;
             case 'election_ended':
                 $body = "
                     <h2 style='color: #D02C4D;'>Election Results Available</h2>

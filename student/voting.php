@@ -65,9 +65,42 @@ foreach ($positions as $pos) {
 
 // --- Handle vote submission ---
 $showModal = false;
+$showConfirmationModal = false;
 $voteDetails = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['votes'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['votes']) && !isset($_POST['confirm_vote'])) {
+    $votes = $_POST['votes']; // Array: position_id => nomination_id
+
+    // Validate all required positions have been voted for
+    $voted_position_ids = array_keys($votes);
+    $missing_votes = array_diff($required_position_ids, $voted_position_ids);
+
+    if (!empty($missing_votes)) {
+        $_SESSION['error'] = "Please vote for all required positions before submitting.";
+        header("Location: voting.php");
+        exit;
+    }
+
+    // Prepare vote details for confirmation modal
+    foreach ($votes as $position_id => $nomination_id) {
+        $position = $posObj->fetchPosition($position_id);
+        $nominations = $nominationsByPosition[$position_id];
+        
+        foreach ($nominations as $nom) {
+            if ($nom['nomination_id'] == $nomination_id) {
+                $voteDetails[] = [
+                    'position' => $position['position_name'],
+                    'candidate' => $nom['candidate_name'],
+                    'position_id' => $position_id,
+                    'nomination_id' => $nomination_id
+                ];
+                break;
+            }
+        }
+    }
+
+    $showConfirmationModal = true;
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['votes']) && isset($_POST['confirm_vote'])) {
     $votes = $_POST['votes']; // Array: position_id => nomination_id
 
     // Validate all required positions have been voted for
@@ -326,6 +359,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['votes'])) {
         </section>
     </main>
 </div>
+
+<!-- CONFIRMATION MODAL -->
+<?php if ($showConfirmationModal): ?>
+<div id="confirmationModal" class="modal show">
+    <div class="modal-content">
+        <h2 class="text-3xl font-bold text-white text-center mb-2">
+            Confirm Your Votes
+        </h2>
+        <p class="text-white/80 text-center mb-6">
+            Please review your selections before submitting.
+        </p>
+
+        <!-- Vote Summary -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/20">
+            <h3 class="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                Your Votes:
+            </h3>
+            <div class="space-y-3">
+                <?php foreach ($voteDetails as $vote): ?>
+                    <div class="vote-item flex items-start gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-white/60 font-medium"><?= htmlspecialchars($vote['position']) ?></p>
+                            <p class="text-white font-semibold"><?= htmlspecialchars($vote['candidate']) ?></p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4">
+            <button
+                onclick="closeConfirmationModal()"
+                class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">
+                Edit Votes
+            </button>
+            <form method="POST" class="flex-1">
+                <?php foreach ($voteDetails as $vote): ?>
+                    <input type="hidden" name="votes[<?= $vote['position_id'] ?>]" value="<?= $vote['nomination_id'] ?>">
+                <?php endforeach; ?>
+                <input type="hidden" name="confirm_vote" value="1">
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Confirm & Submit Votes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function closeConfirmationModal() {
+    const modal = document.getElementById('confirmationModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+</script>
+<?php endif; ?>
 
 <!-- SUCCESS MODAL -->
 <?php if ($showModal): ?>

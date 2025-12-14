@@ -146,6 +146,22 @@ class Election {
         return $result;
     }
 
+    
+public function resumeElection() {
+    $schedule = $this->fetchSchedule();
+    if (!$schedule || $schedule['status'] !== 'Paused') return false;
+
+    $stmt = $this->conn->prepare("UPDATE elections SET status='Ongoing' WHERE id=?");
+    $result = $stmt->execute([$schedule['id']]);
+    
+    if ($result && isset($_SESSION['user_id'])) {
+        $this->logAction($_SESSION['user_id'], 'admin', 'Resume Election', 
+            "Election ID {$schedule['id']} resumed.");
+    }
+    
+    return $result;
+}
+
     public function endElection() {
         $schedule = $this->fetchSchedule();
         if (!$schedule || $schedule['status'] === 'Ended') return false;

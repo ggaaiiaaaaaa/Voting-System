@@ -155,39 +155,116 @@ if (!is_array($vote_distribution)) $vote_distribution = [];
         </section>
 
         <!-- ELECTION MANAGEMENT -->
-        <section class="bg-white/10 backdrop-blur-sm shadow-2xl rounded-2xl p-6 mb-10 border border-white/20 animate-fade-in-up">
-            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Election Management
-            </h3>
-            <form method="POST" action="../admin/election_action.php" class="flex flex-wrap gap-4 mb-6">
-                <button name="action" value="start" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 <?= $startDisabled ?>">Start Election</button>
-                <!-- <button name="action" value="pause" class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 <?= $pauseDisabled ?>">Pause</button> -->
-                <button name="action" value="end" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 <?= $endDisabled ?>">End Election</button>
-            </form>
-            <div class="flex flex-wrap gap-4">
-                <a href="../admin/election/manage_schedule.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Manage Schedule
-                </a>
-                <a href="../admin/nomination/view_nomination.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    View Nominations
-                </a>
-                <a href="../admin/election/view_results.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                    View Results
-                </a>
+<section class="bg-white/10 backdrop-blur-sm shadow-2xl rounded-2xl p-6 mb-10 border border-white/20 animate-fade-in-up">
+    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-3">
+        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Election Management
+    </h3>
+    
+<!--     <div class="mb-6 inline-block">
+        <span class="px-4 py-2 rounded-full font-semibold text-sm <?= $badgeColor ?> text-white shadow-lg">
+            Current Status: <?= htmlspecialchars($status) ?>
+        </span>
+    </div> -->
+    
+    <form method="POST" action="../admin/election_action.php" class="flex flex-wrap gap-4 mb-6">
+        <!-- START BUTTON -->
+        <button 
+            name="action" 
+            value="start" 
+            <?= in_array($status, ['Ongoing', 'Ended']) ? 'disabled' : '' ?>
+            class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            onclick="return confirm('Start the election now? Students will be able to nominate and vote.')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Start Election
+        </button>
+        
+        <!-- PAUSE BUTTON -->
+        <button 
+            name="action" 
+            value="pause" 
+            <?= $status !== 'Ongoing' ? 'disabled' : '' ?>
+            class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            onclick="return confirm('Pause the election? Students will not be able to vote or nominate during this time.')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Pause Election
+        </button>
+        
+        <!-- RESUME BUTTON -->
+        <button 
+            name="action" 
+            value="resume" 
+            <?= $status !== 'Paused' ? 'disabled' : '' ?>
+            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            onclick="return confirm('Resume the election? Students will be able to continue voting and nominating.')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Resume Election
+        </button>
+        
+        <!-- END BUTTON -->
+        <button 
+            name="action" 
+            value="end" 
+            <?= in_array($status, ['Ended', 'No Election Scheduled', 'Upcoming']) ? 'disabled' : '' ?>
+            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+            onclick="return confirm('End the election now? This action cannot be undone. Results will be calculated.')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+            </svg>
+            End Election
+        </button>
+    </form>
+    
+    <!-- Help Text -->
+<!--     <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-sm text-blue-200">
+                <p class="font-semibold mb-1">Election Control Guide:</p>
+                <ul class="list-disc list-inside space-y-1 text-blue-300">
+                    <li><strong>Start:</strong> Activates election - students can nominate and vote</li>
+                    <li><strong>Pause:</strong> Temporarily stops voting - useful for maintenance or breaks</li>
+                    <li><strong>Resume:</strong> Continues a paused election from where it left off</li>
+                    <li><strong>End:</strong> Closes election permanently and calculates final results</li>
+                </ul>
             </div>
-        </section>
+        </div>
+    </div> -->
+    
+    <div class="flex flex-wrap gap-4">
+        <a href="../admin/election/manage_schedule.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Manage Schedule
+        </a>
+        <a href="../admin/nomination/view_nomination.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            View Nominations
+        </a>
+        <a href="../admin/election/view_results.php" class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-medium shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            View Results
+        </a>
+    </div>
+</section>
 
         <!-- NOMINATIONS & VOTING SUMMARY -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">

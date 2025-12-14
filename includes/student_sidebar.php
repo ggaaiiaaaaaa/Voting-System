@@ -17,6 +17,7 @@ $electionObj = new Election();
 $schedule_status = $electionObj->getAdminControlledStatus();
 $student_id = $_SESSION['user_id'] ?? null;
 
+
 $canNominate = false;
 $canVote = false;
 
@@ -28,6 +29,10 @@ if ($student_id) {
             $canVote = !$has_voted;
             break;
         case 'Paused':
+            // Students cannot vote or nominate when paused
+            $canNominate = false;
+            $canVote = false;
+            break;
         case 'Ended':
         case 'Upcoming':
         default:
